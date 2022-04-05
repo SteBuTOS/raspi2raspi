@@ -1,8 +1,8 @@
 # raspi2raspi
 Program to copy from one Raspberry Pi display to another Raspberry Pi
 display.
-Original version by Andrew from Melbourne
-Additional parameter 'rotate' by Stefan Burger
+Original version by Andrew from Melbourne.
+Additional parameter 'rotate' by Stefan Burger.
 # usage
 
     raspi2raspi <options>
