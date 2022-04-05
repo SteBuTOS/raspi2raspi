@@ -10,7 +10,7 @@
 ### END INIT INFO
 
 # Author: Andrew Duncan
-#
+# rotate parameter added by Stefan Burger
 
 # Do NOT "set -e"
 
@@ -20,7 +20,7 @@ DESC="Copy Raspberry Pi screen to a secondary display"
 NAME=raspi2raspi
 DAEMON=/usr/local/bin/$NAME
 PIDFILE=/var/run/$NAME.pid
-DAEMON_ARGS="--daemon --pidfile $PIDFILE"
+DAEMON_ARGS="--daemon --rotate 2 --pidfile $PIDFILE"
 SCRIPTNAME=/etc/init.d/$NAME
 
 # Exit if the package is not installed

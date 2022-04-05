@@ -1,6 +1,8 @@
 # raspi2raspi
 Program to copy from one Raspberry Pi display to another Raspberry Pi
 display.
+Original version by Andrew from Melbourne
+Additional parameter 'rotate' by Stefan Burger
 # usage
 
     raspi2raspi <options>
@@ -10,6 +12,7 @@ display.
     --destination <number> - Raspberry Pi display number (default 5)
     --fps <fps> - set desired frames per second (default 10 frames per second)
     --layer <number> - layer number (default 1)
+    --rotate <number> - 0:no 1:90 2:180 3:270
     --pidfile <pidfile> - create and lock PID file (if being run as a daemon)
     --help - print usage and exit
 
@@ -22,7 +25,10 @@ You will need to install cmake
 You will need to install libbsd-dev
 
     sudo apt-get install libbsd-dev
+# download files
+    git clone https://github.com/SteBuTOS/raspi2raspi /home/pi/raspi2raspi
 # build
+    cd /home/pi/raspi2raspi
     mkdir build
     cd build
     cmake ..

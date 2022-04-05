@@ -61,7 +61,8 @@
 #define DEFAULT_SOURCE_DISPLAY_NUMBER 0
 #define DEFAULT_DESTINATION_DISPLAY_NUMBER 5
 #define DEFAULT_LAYER_NUMBER 1
-#define DEFAULT_FPS 10
+#define DEFAULT_FPS 20
+#define DEFAULT_ROTATE 0
 
 //-------------------------------------------------------------------------
 
@@ -88,6 +89,7 @@ printUsage(
     fprintf(fp, " (default %d)\n", DEFAULT_LAYER_NUMBER);
     fprintf(fp, "    --center - center the source in the destination");
     fprintf(fp, " without upscaling\n");
+    fprintf(fp, "    --rotate <number> - 0:no 1:90 2:180 3:270\n");
     fprintf(fp, "    --pidfile <pidfile> - create and lock PID file");
     fprintf(fp, " (if being run as a daemon)\n");
     fprintf(fp, "    --help - print usage and exit\n");
@@ -126,11 +128,16 @@ main(
     uint32_t sourceDisplayNumber = DEFAULT_SOURCE_DISPLAY_NUMBER;
     uint32_t destDisplayNumber = DEFAULT_DESTINATION_DISPLAY_NUMBER;
     int32_t layerNumber = DEFAULT_LAYER_NUMBER;
+    uint32_t rotate = DEFAULT_ROTATE;
     const char *pidfile = NULL;
+    int32_t drleft=0;
+    int32_t drtop=0;
+    int32_t drwidth=0;
+    int32_t drheight=0;
 
     //---------------------------------------------------------------------
 
-    static const char *sopts = "d:f:hl:p:s:Dc";
+    static const char *sopts = "d:f:hl:p:s:Dcr:";
     static struct option lopts[] = 
     {
         { "destination", required_argument, NULL, 'd' },
@@ -141,6 +148,7 @@ main(
         { "source", required_argument, NULL, 's' },
         { "center", no_argument, NULL, 'c' },
         { "daemon", no_argument, NULL, 'D' },
+	    { "rotate", required_argument, NULL, 'r' },
         { NULL, no_argument, NULL, 0 }
     };
 
@@ -186,7 +194,10 @@ main(
 
             center = true;
             break;
+	    case 'r':
 
+	        rotate = atoi(optarg);
+	        break;
         case 'p':
 
             pidfile = optarg;
@@ -350,8 +361,9 @@ main(
     //---------------------------------------------------------------------
 
     uint32_t image_ptr;
+    DISPMANX_RESOURCE_HANDLE_T resource;
 
-    DISPMANX_RESOURCE_HANDLE_T resource = 
+    resource =
         vc_dispmanx_resource_create(VC_IMAGE_RGBA32,
                                     destInfo.width,
                                     destInfo.height,
@@ -367,7 +379,7 @@ main(
                          destInfo.height << 16);
     
     VC_RECT_T destRect;
-    if (center
+/*    if (center
          && (sourceInfo.width <= destInfo.width)
          && (sourceInfo.height <= destInfo.height))
     {
@@ -385,6 +397,19 @@ main(
     else
     {
         vc_dispmanx_rect_set(&destRect, 0, 0, 0, 0);
+    }
+*/
+    if (rotate==0 || rotate==2)
+    {
+        drleft=0;
+	    drwidth=destInfo.width*96/100;
+	    drheight=drwidth*sourceInfo.width/sourceInfo.height;
+	    drtop=(destInfo.height-drheight)/2;
+	    vc_dispmanx_rect_set(&destRect,drleft,drtop,drwidth,drheight);
+    }
+    else
+    {
+	    vc_dispmanx_rect_set(&destRect,0,0,destInfo.height,destInfo.width);
     }
 
     //---------------------------------------------------------------------
@@ -417,7 +442,7 @@ main(
                                       DISPMANX_PROTECTION_NONE,
                                       &alpha,
                                       NULL,
-                                      DISPMANX_NO_ROTATE);
+                                      rotate); //rotate
     if (element == 0)
     {
         messageLog(isDaemon,
@@ -445,7 +470,7 @@ main(
 
         result = vc_dispmanx_snapshot(sourceDisplay,
                                       resource,
-                                      DISPMANX_NO_ROTATE);
+                                      DISPMANX_NO_ROTATE); //DISPMANX_NO_ROTATE
 
         if (result != 0)
         {
